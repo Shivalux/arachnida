@@ -1,17 +1,13 @@
 import sys
-# import os.path
-import re
 from pathlib import Path
 import httpx
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
-# TODO error request error handle 
-
 IMG_TYPE = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" }
 USAGE = '''\
 ------------------------------------------------------------------------------------------------------------------------
-USAGE: ./sprider [-r] [-l N] [-p PATH] URL
+USAGE: ./spider [-r] [-l N] [-p PATH] URL
 ------------------------------------------------------------------------------------------------------------------------
 Option:
  • -r        : recursively download the images in a URL received as parameter.
@@ -50,24 +46,24 @@ def recursive_extract(urls: list, path: str, level: int, visited: set) -> None:
 		try:
 			response = httpx.get(url, timeout=10)
 			response.raise_for_status()
+			html = BeautifulSoup(response.text, 'html.parser')
+			for img in html.find_all('img'):
+				image = img.get("src")
+				if not image: continue
+				image_type = Path(image).suffix.lower()
+				if image_type in IMG_TYPE:
+					file_path = get_save_path(Path(path), Path(image).name)
+					image_url = urljoin(url, image)
+					download_image(image_url, file_path)
+			next_urls = []
+			for a in html.find_all('a'):
+				href = a.get("href")
+				if href:
+					next_url = href if href.startswith("http") else urljoin(url, href)
+					next_urls.append(next_url)
+			recursive_extract(next_urls, path, level - 1, visited)
 		except httpx.HTTPError as exc:
 			print(f"[Error]: Failed to fetch {exc.request.url!r}")
-		html = BeautifulSoup(response.text, 'html.parser')
-		for img in html.find_all('img'):
-			image = img.get("src")
-			if not image: continue
-			image_type = Path(image).suffix.lower()
-			if image_type in IMG_TYPE:
-				file_path = get_save_path(Path(path), Path(image).name)
-				image_url = urljoin(url, image)
-				download_image(image_url, file_path)
-		next_urls = []
-		for a in html.find_all('a'):
-			href = a.get("href")
-			if href:
-				next_url = href if href.startswith("http") else urljoin(url, href)
-				next_urls.append(next_url)
-		recursive_extract(next_urls, path, level - 1, visited)
 
 def get_save_path(directory: Path, filename: str) -> str:
 	count = 1
