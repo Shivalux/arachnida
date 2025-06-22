@@ -17,6 +17,9 @@ Option:
 Supporting download the following extensions by default:  [ .jpg / .jpeg / .png / .gif / .bmp ]
 ------------------------------------------------------------------------------------------------------------------------
 '''
+
+# https://sparkling-zabaione-67f292.netlify.app
+
 def main() -> int:
 	if len(sys.argv) <= 1:
 		print(USAGE)
@@ -31,13 +34,13 @@ def main() -> int:
 		if option["recusive"]:
 			recursive_extract([option["url"]], option["path"], option["level"], visited)
 		else:
-			recursive_extract([option["url"]], option["path"], 1, visited)
+			recursive_extract([option["url"]], option["path"], 0, visited)
 		return 0
 	except KeyboardInterrupt:
 		return 1
 	
 def recursive_extract(urls: list, path: str, level: int, visited: set) -> None:
-	if level <= 0:
+	if level < 0:
 		return
 	for url in urls:
 		if url in visited: continue

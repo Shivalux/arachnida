@@ -1,7 +1,7 @@
 import sys
 import os
-from datetime import datetime, date
-from exif import Image, Flash, LightSource
+from datetime import datetime
+from exif import Image, Flash
 from pathlib import Path
 
 IMG_TYPE = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" }
