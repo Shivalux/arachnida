@@ -48,7 +48,8 @@ def recursive_extract(urls: list, path: str, level: int, visited: set) -> None:
 		print(f"[-URL-]: {url}")
 		try:
 			response = httpx.get(url, timeout=10)
-			response.raise_for_status()
+			if response.status_code != 200:
+				return
 			html = BeautifulSoup(response.text, 'html.parser')
 			for img in html.find_all('img'):
 				image = img.get("src")
