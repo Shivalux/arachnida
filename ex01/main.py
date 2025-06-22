@@ -119,7 +119,6 @@ def option_parse(argv: list) -> dict | None:
 
 def error(message: str) -> None:
 	print(f"[ERROR]: {message}")
-	print(USAGE)
 	return None
 
 if (__name__ == "__main__"):

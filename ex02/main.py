@@ -53,23 +53,26 @@ def print_data(path, stats, count: int=0):
     print(f"| Modified Date:    {time(stats.st_mtime)}".ljust(68), "|")
     print(f"| Last Access Date: {time(stats.st_atime)}".ljust(68), "|")
     print(f"|{'=' * 30}[EXIF]{'=' * 32}|")
-    with open(path, 'rb') as image_file:
-        my_image = Image(image_file)
-    if my_image.has_exif:
-        for i in my_image.list_all():
-            key = i.replace("_", " ").strip().title()
-            if (key == 'Copyright'): continue
-            try:
-                if isinstance(my_image[i], Flash):
-                    print(f"| • {key}:".ljust(68), "|")
-                    for attr in dir(my_image[i]):
-                        if attr in FLASH_ATTR:
-                            print(f"| |- • {attr}: {getattr(my_image[i], attr)}".ljust(68), "|")
-                else:
-                    print(f"| • {key}: {my_image[i]}".ljust(68), "|")
-            except Exception as e:
-                pass
-    else:
+    try:
+        with open(path, 'rb') as image_file:
+            my_image = Image(image_file)
+        if my_image.has_exif:
+            for i in my_image.list_all():
+                key = i.replace("_", " ").strip().title()
+                if (key == 'Copyright'): continue
+                try:
+                    if isinstance(my_image[i], Flash):
+                        print(f"| • {key}:".ljust(68), "|")
+                        for attr in dir(my_image[i]):
+                            if attr in FLASH_ATTR:
+                                print(f"| |- • {attr}: {getattr(my_image[i], attr)}".ljust(68), "|")
+                    else:
+                        print(f"| • {key}: {my_image[i]}".ljust(68), "|")
+                except Exception as e:
+                    pass
+        else:
+            print(f"|{' ' * 17}This image file does not has EXIF{' ' * 18}|")
+    except Exception:
         print(f"|{' ' * 17}This image file does not has EXIF{' ' * 18}|")
     print(f"[IMAGE]::[{count:03d}]--".rjust(70, '-'))
     if not count:
